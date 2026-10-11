@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/users"
+    },
+    {
+      "path": "./apps/gateway"
+    },
+    {
+      "path": "./apps/content"
+    },
+    {
+      "path": "./apps/notifications"
+    },
+    {
+      "path": "./apps/files"
+    }
+  ]
+}

@@ -3,9 +3,14 @@
   "compilerOptions": {
     "outDir": "../../dist/libs/shared-types",
     "declaration": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ],
+    "emitDeclarationOnly": false
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts"
+  ],
   "exclude": [
     "jest.config.ts",
     "src/**/*.spec.ts",

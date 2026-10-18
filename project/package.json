@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "test:users": "bash tools/test-users-api.sh"
+    "test:users": "bash tools/test-users-api.sh",
+    "test:content": "bash tools/test-content-api.sh",
+    "test:all": "bash tools/test-users-api.sh && bash tools/test-content-api.sh"
   },
   "private": true,
   "dependencies": {

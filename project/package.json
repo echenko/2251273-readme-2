@@ -5,7 +5,8 @@
   "scripts": {
     "test:users": "bash tools/test-users-api.sh",
     "test:content": "bash tools/test-content-api.sh",
-    "test:all": "bash tools/test-users-api.sh && bash tools/test-content-api.sh"
+    "test:files": "bash tools/test-files-api.sh",
+    "test:all": "bash tools/test-users-api.sh && bash tools/test-content-api.sh && bash tools/test-files-api.sh"
   },
   "private": true,
   "dependencies": {
@@ -19,6 +20,7 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "multer": "^2.4.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.0",
@@ -42,6 +44,7 @@
     "@swc/jest": "~0.2.38",
     "@types/bcrypt": "^6.0.0",
     "@types/jest": "~30.0.0",
+    "@types/multer": "^2.3.0",
     "@types/node": "^22.0.0",
     "@types/passport-jwt": "^4.0.1",
     "eslint": "^9.8.0",

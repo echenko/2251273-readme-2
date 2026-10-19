@@ -2,13 +2,27 @@
   "name": "@project/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "test:users": "bash tools/test-users-api.sh",
+    "test:content": "bash tools/test-content-api.sh",
+    "test:files": "bash tools/test-files-api.sh",
+    "test:all": "bash tools/test-users-api.sh && bash tools/test-content-api.sh && bash tools/test-files-api.sh"
+  },
   "private": true,
   "dependencies": {
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
+    "@nestjs/jwt": "^12.0.3",
+    "@nestjs/passport": "^12.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.4.7",
     "axios": "^1.6.0",
+    "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "multer": "^2.4.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.0"
   },
@@ -28,13 +42,17 @@
     "@swc/core": "~1.15.5",
     "@swc/helpers": "~0.5.18",
     "@swc/jest": "~0.2.38",
+    "@types/bcrypt": "^6.0.0",
     "@types/jest": "~30.0.0",
+    "@types/multer": "^2.3.0",
     "@types/node": "^22.0.0",
+    "@types/passport-jwt": "^4.0.1",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
     "jest": "~30.3.0",
     "jest-environment-node": "~30.3.0",
     "jest-util": "~30.3.0",
+    "jsonc-eslint-parser": "^2.1.0",
     "nx": "23.3.0",
     "prettier": "~3.6.2",
     "ts-jest": "^29.4.7",
@@ -47,6 +65,7 @@
     "webpack-dev-server": "^5.2.1"
   },
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "libs/*"
   ]
 }

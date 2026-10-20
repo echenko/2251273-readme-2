@@ -174,8 +174,8 @@ check_contains "kind=photo" '"kind":"photo"' "$BODY"
 
 bold "▶ Получение файла"
 
-http_call "$FILES_URL/files/$AVATAR_ID"
-check "GET /files/:id → 200" 200 "$HTTP_CODE" ""
+CODE=$(curl -s -o /dev/null -w "%{http_code}" "$FILES_URL/files/$AVATAR_ID")
+check "GET /files/:id → 200" 200 "$CODE" ""
 # content-type должен быть image/png — но http_call не сохраняет заголовки,
 # поэтому проверяем через отдельный curl -I
 CT=$(curl -s -o /dev/null -w "%{content_type}" "$FILES_URL/files/$AVATAR_ID")

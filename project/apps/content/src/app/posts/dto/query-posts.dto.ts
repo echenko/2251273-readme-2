@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-import { PostType, SortType } from '@readme/shared-types';
+import { PostType, SortType, DEFAULT_POSTS_LIMIT } from '@readme/shared-types';
 
 export class QueryPostsDto {
   @ApiPropertyOptional({ default: 0 })
@@ -11,12 +11,12 @@ export class QueryPostsDto {
   @Min(0)
   offset?: number;
 
-  @ApiPropertyOptional({ default: 25, maximum: 25 })
+  @ApiPropertyOptional({ default: DEFAULT_POSTS_LIMIT, maximum: DEFAULT_POSTS_LIMIT })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  @Max(25)
+  @Max(DEFAULT_POSTS_LIMIT)
   limit?: number;
 
   @ApiPropertyOptional({ enum: SortType, default: SortType.Date })

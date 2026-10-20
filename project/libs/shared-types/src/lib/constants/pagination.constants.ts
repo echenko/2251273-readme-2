@@ -1,0 +1,3 @@
+export const DEFAULT_POSTS_LIMIT = 25;
+export const DEFAULT_COMMENTS_LIMIT = 50;
+export const DEFAULT_SEARCH_LIMIT = 20;

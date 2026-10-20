@@ -1,0 +1,5 @@
+export const USERS_SERVICE_PORT = 3005;
+export const CONTENT_SERVICE_PORT = 3001;
+export const FILES_SERVICE_PORT = 3002;
+export const GATEWAY_SERVICE_PORT = 3003;
+export const NOTIFICATIONS_SERVICE_PORT = 3004;

@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { DEFAULT_SEARCH_LIMIT } from '@readme/shared-types';
 import { PostsService } from './posts.service';
 import { QueryPostsDto } from './dto/query-posts.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -47,7 +48,7 @@ export class PostsController {
   @Get('search')
   @ApiOperation({ summary: 'Поиск' })
   search(@Query('q') q: string) {
-    return this.postsService.list({ search: q, limit: 20 } as QueryPostsDto);
+    return this.postsService.list({ search: q, limit: DEFAULT_SEARCH_LIMIT } as QueryPostsDto);
   }
 
   @Get(':id')

@@ -7,7 +7,14 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { Post, PostStatus, PostType, SortType } from '@readme/shared-types';
+import {
+  Post,
+  PostStatus,
+  PostType,
+  SortType,
+  DEFAULT_POSTS_LIMIT,
+  DEFAULT_SEARCH_LIMIT,
+} from '@readme/shared-types';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { PostsRepository, PostQuery } from './repositories/posts.repository';
@@ -82,7 +89,7 @@ export class PostsService {
   async list(query: QueryPostsDto): Promise<{ items: Post[]; total: number }> {
     const repoQuery: PostQuery = {
       offset: query.offset,
-      limit: query.limit ?? 25,
+      limit: query.limit ?? DEFAULT_POSTS_LIMIT,
       sortBy: query.sortBy ?? SortType.Date,
       type: query.type,
       tag: query.tag,
@@ -97,7 +104,12 @@ export class PostsService {
   }
 
   async drafts(authorId: string): Promise<{ items: Post[]; total: number }> {
-    const repoQuery: PostQuery = { authorId, status: PostStatus.Draft, limit: 25, offset: 0 };
+    const repoQuery: PostQuery = {
+      authorId,
+      status: PostStatus.Draft,
+      limit: DEFAULT_POSTS_LIMIT,
+      offset: 0,
+    };
     const [items, total] = await Promise.all([
       this.postsRepository.find(repoQuery),
       this.postsRepository.count(repoQuery),
@@ -122,7 +134,10 @@ export class PostsService {
 
   async repost(userId: string, id: string): Promise<Post> {
     const original = await this.getById(id);
-    const already = await this.postsRepository.find({ authorId: userId, limit: 1000 });
+    const already = await this.postsRepository.find({
+      authorId: userId,
+      limit: DEFAULT_POSTS_LIMIT * 40, // большой запас для проверки дублей
+    });
     if (already.some((p) => p.originalPostId === id)) {
       throw new ForbiddenException('Already reposted');
     }
@@ -139,7 +154,12 @@ export class PostsService {
   }
 
   async publishedByAuthor(authorId: string): Promise<{ items: Post[]; total: number }> {
-    const repoQuery: PostQuery = { authorId, status: PostStatus.Published, limit: 25, offset: 0 };
+    const repoQuery: PostQuery = {
+      authorId,
+      status: PostStatus.Published,
+      limit: DEFAULT_POSTS_LIMIT,
+      offset: 0,
+    };
     const [items, total] = await Promise.all([
       this.postsRepository.find(repoQuery),
       this.postsRepository.count(repoQuery),

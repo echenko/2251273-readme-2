@@ -20,3 +20,10 @@ export * from './lib/dto/user.dto.js';
 export * from './lib/dto/post.dto.js';
 export * from './lib/dto/comment.dto.js';
 export * from './lib/dto/file.dto.js';
+
+// constants
+export * from './lib/constants/ports.constants.js';
+export * from './lib/constants/auth.constants.js';
+export * from './lib/constants/validation.constants.js';
+export * from './lib/constants/pagination.constants.js';
+export * from './lib/constants/files.constants.js';

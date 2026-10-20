@@ -9,59 +9,76 @@ import {
   Length,
   Matches,
 } from 'class-validator';
-import { PostType } from '@readme/shared-types';
+import {
+  PostType,
+  POST_TITLE_MIN_LENGTH,
+  POST_TITLE_MAX_LENGTH,
+  POST_ANNOUNCEMENT_MIN_LENGTH,
+  POST_ANNOUNCEMENT_MAX_LENGTH,
+  POST_TEXT_MIN_LENGTH,
+  POST_TEXT_MAX_LENGTH,
+  QUOTE_TEXT_MIN_LENGTH,
+  QUOTE_TEXT_MAX_LENGTH,
+  QUOTE_AUTHOR_MIN_LENGTH,
+  QUOTE_AUTHOR_MAX_LENGTH,
+  LINK_DESCRIPTION_MIN_LENGTH,
+  LINK_DESCRIPTION_MAX_LENGTH,
+  TAG_MAX_COUNT,
+  TAG_PATTERN,
+  YOUTUBE_URL_PATTERN,
+} from '@readme/shared-types';
 
 export class CreatePostBaseDto {
   @ApiProperty({ enum: PostType })
   @IsEnum(PostType)
   type!: PostType;
 
-  @ApiProperty({ required: false, isArray: true, maxItems: 8 })
+  @ApiProperty({ required: false, isArray: true, maxItems: TAG_MAX_COUNT })
   @IsOptional()
   @IsArray()
-  @ArrayMaxSize(8)
-  @Matches(/^[a-z][a-z0-9]{2,9}$/i, { each: true })
+  @ArrayMaxSize(TAG_MAX_COUNT)
+  @Matches(TAG_PATTERN, { each: true })
   tags?: string[];
 }
 
 export class CreateVideoPostDto extends CreatePostBaseDto {
   @ApiProperty()
   @IsString()
-  @Length(20, 50)
+  @Length(POST_TITLE_MIN_LENGTH, POST_TITLE_MAX_LENGTH)
   title!: string;
 
   @ApiProperty()
   @IsUrl()
-  @Matches(/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//)
+  @Matches(YOUTUBE_URL_PATTERN)
   videoUrl!: string;
 }
 
 export class CreateTextPostDto extends CreatePostBaseDto {
   @ApiProperty()
   @IsString()
-  @Length(20, 50)
+  @Length(POST_TITLE_MIN_LENGTH, POST_TITLE_MAX_LENGTH)
   title!: string;
 
   @ApiProperty()
   @IsString()
-  @Length(50, 255)
+  @Length(POST_ANNOUNCEMENT_MIN_LENGTH, POST_ANNOUNCEMENT_MAX_LENGTH)
   announcement!: string;
 
   @ApiProperty()
   @IsString()
-  @Length(100, 1024)
+  @Length(POST_TEXT_MIN_LENGTH, POST_TEXT_MAX_LENGTH)
   text!: string;
 }
 
 export class CreateQuotePostDto extends CreatePostBaseDto {
   @ApiProperty()
   @IsString()
-  @Length(20, 300)
+  @Length(QUOTE_TEXT_MIN_LENGTH, QUOTE_TEXT_MAX_LENGTH)
   quoteText!: string;
 
   @ApiProperty()
   @IsString()
-  @Length(3, 50)
+  @Length(QUOTE_AUTHOR_MIN_LENGTH, QUOTE_AUTHOR_MAX_LENGTH)
   quoteAuthor!: string;
 }
 
@@ -79,6 +96,6 @@ export class CreateLinkPostDto extends CreatePostBaseDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  @Length(0, 300)
+  @Length(LINK_DESCRIPTION_MIN_LENGTH, LINK_DESCRIPTION_MAX_LENGTH)
   description?: string;
 }

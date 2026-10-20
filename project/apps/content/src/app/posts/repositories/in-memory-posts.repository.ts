@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Post, PostType } from '@readme/shared-types';
+import { Post, PostType, DEFAULT_POSTS_LIMIT } from '@readme/shared-types';
 import { PostsRepository, PostQuery } from './posts.repository';
 
 @Injectable()
@@ -49,7 +49,7 @@ export class InMemoryPostsRepository implements PostsRepository {
       (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
     );
     const offset = query.offset ?? 0;
-    const limit = query.limit ?? 25;
+    const limit = query.limit ?? DEFAULT_POSTS_LIMIT;
     return items.slice(offset, offset + limit);
   }
 

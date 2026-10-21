@@ -74,6 +74,17 @@ JWT_SECRET=change-me-in-production
 
 > В коде не хранятся реальные секреты. Все секреты задаются через переменные окружения.
 
+## Запуск MongoDB (users)
+
+Сервис `users` использует MongoDB. Для локального запуска — Docker Compose.
+
+### 1. Запуск контейнеров
+
+```bash
+cd apps/users
+docker compose up -d
+docker compose ps
+
 ## Smoke-тесты
 
 Для каждого сервиса есть bash-скрипт, который проходит все ключевые сценарии.

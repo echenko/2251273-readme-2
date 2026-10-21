@@ -9,3 +9,6 @@
 .DS_Store
 coverage
 *.log
+
+mongo-data/
+.env

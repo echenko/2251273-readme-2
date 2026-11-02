@@ -75,6 +75,7 @@ Swagger: `http://localhost:<PORT>/api`:
 | Переменная | По умолчанию | Назначение |
 |---|---|---|
 | `JWT_SECRET` | `dev-secret` | Секрет подписи JWT (одинаковый во всех сервисах) |
+| `JWT_REFRESH_SECRET` | `dev-refresh-secret` | Секрет подписи refresh-токенов |
 | `PORT` | порт сервиса | Переопределение порта |
 | `MONGODB_URI` | — | Строка подключения к MongoDB (только users) |
 | `USE_MONGODB` | `false` | `true` — MongoDB, `false` — in-memory (только users) |
@@ -191,6 +192,47 @@ npm run test:all
 - Swagger UI: /api каждого сервиса.
 - OpenAPI JSON: /api-json каждого сервиса.
 - Общие типы и константы: `libs/shared-types/src`.
+
+
+
+## Refresh-токены
+
+Сервис `users` выдаёт **пару токенов** при логине:
+- `accessToken` — живёт 15 минут, используется для авторизации.
+- `refreshToken` — живёт 7 дней, хранится хешем (bcrypt) в MongoDB.
+
+### Получение пары
+
+```bash
+curl -X POST http://localhost:3005/auth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"user@example.com\",\"password\":\"secret123\"}"
+```
+
+Ответ:
+
+```json
+{ "accessToken": "eyJ...", "refreshToken": "eyJ..." }
+```
+
+### Обновление пары
+
+```bash
+curl -X POST http://localhost:3005/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d "{\"refreshToken\":\"eyJ...\"}"
+```
+
+Ответ — новая пара. Старый refresh-токен **инвалидируется** (rotation).
+
+### Env
+
+```env
+JWT_SECRET=dev-secret
+JWT_REFRESH_SECRET=dev-refresh-secret
+```
+
+> Оба секрета должны быть одинаковыми на всех сервисах (сейчас используется только в `users`).
 
 ## Заметки
 

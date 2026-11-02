@@ -20,6 +20,7 @@ export * from './lib/dto/user.dto.js';
 export * from './lib/dto/post.dto.js';
 export * from './lib/dto/comment.dto.js';
 export * from './lib/dto/file.dto.js';
+export * from './lib/dto/pagination.dto.js';
 
 // constants
 export * from './lib/constants/ports.constants.js';

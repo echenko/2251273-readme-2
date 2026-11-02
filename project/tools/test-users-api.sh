@@ -235,8 +235,11 @@ check_contains "Есть registeredAt"    '"registeredAt"'  "$BODY"
 check_contains "Есть postsCount"      '"postsCount"'    "$BODY"
 check_contains "Есть subscribersCount" '"subscribersCount"' "$BODY"
 
-http_call "$BASE_URL/users/00000000-0000-0000-0000-000000000000"
-check "Несуществующий → 404" 404 "$HTTP_CODE" "$BODY"
+http_call "$BASE_URL/users/not-a-valid-id"
+check "Невалидный ObjectId → 400" 400 "$HTTP_CODE" "$BODY"
+
+http_call "$BASE_URL/users/000000000000000000000000"
+check "Несуществующий ObjectId → 404" 404 "$HTTP_CODE" "$BODY"
 
 # --- 8. защита эндпоинтов ------------------------------------------------
 
@@ -283,6 +286,43 @@ http_call -X POST "$BASE_URL/auth/login" \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}"
 check "Логин со старым паролем после смены → 401" 401 "$HTTP_CODE" "$BODY"
+
+# --- 11. refresh-токены ----------------------------------------------
+
+bold "▶ Refresh-токены"
+
+# логин должен вернуть пару токенов
+http_call -X POST "$BASE_URL/auth/login" -H "Content-Type: application/json" \
+  -d "{\"email\":\"$EMAIL\",\"password\":\"$NEW_PASSWORD\"}"
+check "Логин после смены пароля → 200" 200 "$HTTP_CODE" "$BODY"
+check_contains "Ответ содержит accessToken"  '"accessToken"'  "$BODY"
+check_contains "Ответ содержит refreshToken" '"refreshToken"' "$BODY"
+
+REFRESH_TOKEN=$(extract_json "refreshToken" "$BODY")
+if [ -z "$REFRESH_TOKEN" ]; then
+  red "Не удалось извлечь refreshToken"
+  FAIL=$((FAIL+1)); FAILED_TESTS+=("refreshToken extract")
+else
+  green "  → refreshToken получен (${#REFRESH_TOKEN} символов)"
+  PASS=$((PASS+1))
+fi
+
+# валидный refresh → 200 + новая пара
+http_call -X POST "$BASE_URL/auth/refresh" -H "Content-Type: application/json" \
+  -d "{\"refreshToken\":\"$REFRESH_TOKEN\"}"
+check "POST /auth/refresh → 200" 200 "$HTTP_CODE" "$BODY"
+check_contains "Новая пара: accessToken"  '"accessToken"'  "$BODY"
+check_contains "Новая пара: refreshToken" '"refreshToken"' "$BODY"
+
+# битый refresh → 401
+http_call -X POST "$BASE_URL/auth/refresh" -H "Content-Type: application/json" \
+  -d '{"refreshToken":"garbage"}'
+check "Битый refresh → 401" 401 "$HTTP_CODE" "$BODY"
+
+# пустой refresh → 400 (валидация)
+http_call -X POST "$BASE_URL/auth/refresh" -H "Content-Type: application/json" -d '{}'
+check "Пустой refresh → 400" 400 "$HTTP_CODE" "$BODY"
+
 
 # --- 11. итог -----------------------------------------------------------
 

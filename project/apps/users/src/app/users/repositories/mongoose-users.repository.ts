@@ -19,13 +19,14 @@ export class MongooseUsersRepository implements UsersRepository {
       avatarId: user.avatarId,
       passwordHash: user.passwordHash,
       registeredAt: user.registeredAt,
+      refreshTokenHash: user.refreshTokenHash,
     });
     const saved = await created.save();
     return this.toEntity(saved);
   }
 
   async findById(id: string): Promise<UserEntity | null> {
-    if (!isValidObjectId(id)) return null;   // ← защита от CastError
+    if (!isValidObjectId(id)) return null;
     const doc = await this.userModel.findById(id).exec();
     return doc ? this.toEntity(doc) : null;
   }
@@ -36,7 +37,7 @@ export class MongooseUsersRepository implements UsersRepository {
   }
 
   async update(id: string, patch: Partial<UserEntity>): Promise<UserEntity | null> {
-    if (!isValidObjectId(id)) return null;   // ← защита от CastError
+    if (!isValidObjectId(id)) return null;
     const { id: _omitId, ...cleanPatch } = patch;
     const doc = await this.userModel
       .findByIdAndUpdate(id, cleanPatch, { new: true })
@@ -58,6 +59,7 @@ export class MongooseUsersRepository implements UsersRepository {
     entity.avatarId = doc.avatarId;
     entity.passwordHash = doc.passwordHash;
     entity.registeredAt = doc.registeredAt;
+    entity.refreshTokenHash = doc.refreshTokenHash;
     return entity;
   }
 }

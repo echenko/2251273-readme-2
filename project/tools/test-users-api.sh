@@ -235,8 +235,11 @@ check_contains "Есть registeredAt"    '"registeredAt"'  "$BODY"
 check_contains "Есть postsCount"      '"postsCount"'    "$BODY"
 check_contains "Есть subscribersCount" '"subscribersCount"' "$BODY"
 
-http_call "$BASE_URL/users/00000000-0000-0000-0000-000000000000"
-check "Несуществующий → 404" 404 "$HTTP_CODE" "$BODY"
+http_call "$BASE_URL/users/not-a-valid-id"
+check "Невалидный ObjectId → 400" 400 "$HTTP_CODE" "$BODY"
+
+http_call "$BASE_URL/users/000000000000000000000000"
+check "Несуществующий ObjectId → 404" 404 "$HTTP_CODE" "$BODY"
 
 # --- 8. защита эндпоинтов ------------------------------------------------
 

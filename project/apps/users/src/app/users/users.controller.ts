@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { ParseObjectIdPipe } from '../common/pipes/parse-object-id.pipe';
 
 @ApiTags('users')
 @Controller('users')
@@ -12,7 +13,8 @@ export class UsersController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Детальная информация о пользователе' })
-  getUser(@Param('id') id: string) {
+  @ApiParam({ name: 'id', description: 'MongoDB ObjectId' })
+  getUser(@Param('id', ParseObjectIdPipe) id: string) {
     return this.usersService.getDetails(id);
   }
 

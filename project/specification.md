@@ -234,6 +234,76 @@ JWT_REFRESH_SECRET=dev-refresh-secret
 
 > Оба секрета должны быть одинаковыми на всех сервисах (сейчас используется только в `users`).
 
+
+
+## Notifications (RabbitMQ + MailHog)
+
+Сервис `notifications` (:3004) принимает HTTP-запрос на рассылку, ставит задачи в RabbitMQ, а consumer асинхронно отправляет письма через SMTP (MailHog).
+
+### 1. Запуск контейнеров
+
+```bash
+cd apps/notifications
+docker compose up -d
+docker compose ps
+```
+
+| Контейнер | Порт | Назначение |
+|---|---|---|
+| `readme-notifications-rabbitmq` | `5673` (AMQP), `15673` (UI) | Брокер сообщений |
+| `readme-notifications-mailhog` | `1026` (SMTP), `8026` (UI) | Fake SMTP |
+| `readme-notifications-mongo` | `27019` | MongoDB (для будущих задач) |
+
+### 2. Запуск сервиса
+
+```bash
+npx nx run notifications:serve
+```
+
+Лог:
+```
+🚀 Notifications service on http://localhost:3004/api
+📥 RabbitMQ consumer on queue: readme_notifications
+```
+
+### 3. Отправка письма
+
+```bash
+curl -X POST http://localhost:3004/notifications/send \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"user@example.com\",\"posts\":[{\"id\":\"1\",\"title\":\"Test\"}]}"
+```
+
+Ответ: `{"enqueued":1}`. Письмо появится в MailHog UI: http://localhost:8026
+
+### 4. RabbitMQ Management
+
+http://localhost:15673 — `readme` / `readme_password`. Queue: `readme_notifications`.
+
+### 5. Env
+
+```env
+RABBITMQ_URI=amqp://readme:readme_password@localhost:5673
+RABBITMQ_QUEUE=readme_notifications
+SMTP_HOST=localhost
+SMTP_PORT=1026
+SMTP_FROM=noreply@readme.local
+```
+
+### 6. Архитектура
+
+```
+POST /notifications/send
+        ↓
+NotificationsService.enqueue()
+        ↓ (client.emit)
+RabbitMQ queue: readme_notifications
+        ↓ (@EventPattern)
+NotificationsConsumer.handleSendEmail()
+        ↓
+MailService.sendNewPostsEmail() → SMTP → MailHog
+```
+
 ## Заметки
 
 - `users` использует MongoDB (Mongoose), `content` и `files` — in-memory (для учебного проекта).

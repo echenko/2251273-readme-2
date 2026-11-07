@@ -1,21 +1,36 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix);
-  const port = process.env.PORT || 3004;
+  const config = app.get(ConfigService);
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [config.get<string>('RABBITMQ_URI')!],
+      queue: config.get<string>('RABBITMQ_QUEUE'),
+      queueOptions: { durable: true },
+      noAck: false,
+    },
+  });
+
+  await app.startAllMicroservices();
+
+  const swagger = new DocumentBuilder()
+    .setTitle('Readme — Notifications API')
+    .setVersion('1.0')
+    .build();
+  SwaggerModule.setup('api', app, SwaggerModule.createDocument(app, swagger));
+
+  const port = 3004;
   await app.listen(port);
-  Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
-  );
+  Logger.log(`🚀 Notifications service on http://localhost:${port}/api`);
+  Logger.log(`📥 RabbitMQ consumer on queue: ${config.get('RABBITMQ_QUEUE')}`);
 }
 
 bootstrap();

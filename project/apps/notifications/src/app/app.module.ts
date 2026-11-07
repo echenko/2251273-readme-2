@@ -1,4 +1,14 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { NotificationsModule } from './notifications/notifications.module';
 
-@Module({})
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: 'apps/notifications/.env',
+    }),
+    NotificationsModule,
+  ],
+})
 export class AppModule {}

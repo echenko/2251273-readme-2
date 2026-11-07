@@ -8,12 +8,25 @@ export class MailService {
   constructor(private readonly mailer: MailerService) {}
 
   async sendNewPostsEmail(to: string, posts: { title: string; id: string }[]) {
-    const list = posts.map((p) => `<li><b>${p.title}</b> (id: ${p.id})</li>`).join('');
+    if (!Array.isArray(posts) || posts.length === 0) {
+      this.logger.warn(`Invalid posts for ${to}, skipping`);
+      return;
+    }
+
+    const list = posts
+      .map((p) => `<li><b>${p.title ?? '(no title)'}</b> (id: ${p.id ?? '-'})</li>`)
+      .join('');
+
     await this.mailer.sendMail({
       to,
       subject: `Readme: ${posts.length} новых публикаций`,
-      html: `<h1>Новые публикации в Readme</h1><ul>${list}</ul><p>— команда Readme</p>`,
+      html: `
+        <h1>Новые публикации в Readme</h1>
+        <ul>${list}</ul>
+        <p>— команда Readme</p>
+      `,
     });
+
     this.logger.log(`Email sent to ${to} with ${posts.length} posts`);
   }
 }

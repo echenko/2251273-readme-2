@@ -1,12 +1,13 @@
-import { Post, PostStatus, PostType } from '@readme/shared-types';
+import { Post, PostStatus, PostType, SortType } from '@readme/shared-types';
 
 export interface PostQuery {
   offset?: number;
   limit?: number;
-  sortBy?: 'date' | 'likes' | 'comments';
+  sortBy?: SortType;
   type?: PostType;
   tag?: string;
   authorId?: string;
+  authorIds?: string[];
   status?: PostStatus;
   search?: string;
 }

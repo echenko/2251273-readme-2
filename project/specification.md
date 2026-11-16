@@ -366,6 +366,47 @@ PORT=3003
 npm run test:gateway   # требует users, content, files, gateway
 ```
 
+
+
+## Подписки и лента
+
+### Подписки (users)
+
+| Метод | Маршрут | Описание |
+|---|---|---|
+| POST | `/users/:id/subscribe` | Подписаться (auth) |
+| DELETE | `/users/:id/subscribe` | Отписаться (auth) |
+| GET | `/users/:id/subscribers` | Подписчики |
+| GET | `/users/:id/subscriptions` | Подписки |
+| GET | `/users/me/subscriptions` | Мои подписки (auth) |
+| GET | `/users/me/feed-author-ids` | ID авторов ленты (auth) |
+
+### Лента (content)
+
+| Метод | Маршрут | Описание |
+|---|---|---|
+| GET | `/posts/feed?authorIds=a,b,c&limit=25&offset=0&sortBy=date` | Лента по авторам |
+
+### Лента (gateway)
+
+| Метод | Маршрут | Описание |
+|---|---|---|
+| GET | `/feed?limit=25&offset=0` | Моя лента (auth). Gateway: users → content → агрегация |
+
+### Логика ленты
+
+1. Gateway → `users/me/feed-author-ids` (я + подписки).
+2. Gateway → `content/posts/feed?authorIds=...`.
+3. Gateway агрегирует: `author`, `likesCount`, `commentsCount`.
+
+### postsCount в деталях пользователя
+
+`GET /users/:id` теперь возвращает реальный `postsCount` — users запрашивает `content/posts?authorId=...&limit=1` и берёт `total`.
+
+### subscribersCount
+
+Считается из коллекции `subscriptions` в MongoDB.
+
 ## Заметки
 
 - `users` использует MongoDB (Mongoose), `content` и `files` — in-memory (для учебного проекта).

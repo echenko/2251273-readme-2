@@ -13,7 +13,6 @@ import {
   PostType,
   SortType,
   DEFAULT_POSTS_LIMIT,
-  DEFAULT_SEARCH_LIMIT,
   Paginated,
 } from '@readme/shared-types';
 import { plainToInstance } from 'class-transformer';
@@ -51,10 +50,7 @@ export class PostsService {
     if (!Cls) throw new BadRequestException(`Unknown post type: ${body?.type}`);
 
     const instance = plainToInstance(Cls, body);
-    const errors = await validate(instance, {
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    });
+    const errors = await validate(instance, { whitelist: true, forbidNonWhitelisted: true });
     if (errors.length > 0) {
       const messages = errors
         .flatMap((e) => Object.values(e.constraints ?? {}))
@@ -98,6 +94,8 @@ export class PostsService {
       type: query.type,
       tag: query.tag,
       search: query.search,
+      authorId: query.authorId,
+      authorIds: query.authorIds,
       status: PostStatus.Published,
     };
 
@@ -116,29 +114,22 @@ export class PostsService {
     };
   }
 
+  async feed(query: QueryPostsDto): Promise<Paginated<Post>> {
+    if (!query.authorIds || query.authorIds.length === 0) {
+      return { items: [], total: 0, limit: query.limit ?? DEFAULT_POSTS_LIMIT, offset: query.offset ?? 0, totalPages: 0, hasNext: false };
+    }
+    return this.list(query);
+  }
+
   async drafts(authorId: string): Promise<Paginated<Post>> {
     const limit = DEFAULT_POSTS_LIMIT;
     const offset = 0;
-    const repoQuery: PostQuery = {
-      authorId,
-      status: PostStatus.Draft,
-      limit,
-      offset,
-    };
-
+    const repoQuery: PostQuery = { authorId, status: PostStatus.Draft, limit, offset };
     const [items, total] = await Promise.all([
       this.postsRepository.find(repoQuery),
       this.postsRepository.count(repoQuery),
     ]);
-
-    return {
-      items,
-      total,
-      limit,
-      offset,
-      totalPages: Math.ceil(total / limit),
-      hasNext: offset + items.length < total,
-    };
+    return { items, total, limit, offset, totalPages: Math.ceil(total / limit), hasNext: offset + items.length < total };
   }
 
   async update(authorId: string, id: string, patch: Partial<Post>): Promise<Post> {
@@ -158,10 +149,7 @@ export class PostsService {
 
   async repost(userId: string, id: string): Promise<Post> {
     const original = await this.getById(id);
-    const already = await this.postsRepository.find({
-      authorId: userId,
-      limit: DEFAULT_POSTS_LIMIT * 40,
-    });
+    const already = await this.postsRepository.find({ authorId: userId, limit: DEFAULT_POSTS_LIMIT * 40 });
     if (already.some((p) => p.originalPostId === id)) {
       throw new ForbiddenException('Already reposted');
     }
@@ -180,25 +168,11 @@ export class PostsService {
   async publishedByAuthor(authorId: string): Promise<Paginated<Post>> {
     const limit = DEFAULT_POSTS_LIMIT;
     const offset = 0;
-    const repoQuery: PostQuery = {
-      authorId,
-      status: PostStatus.Published,
-      limit,
-      offset,
-    };
-
+    const repoQuery: PostQuery = { authorId, status: PostStatus.Published, limit, offset };
     const [items, total] = await Promise.all([
       this.postsRepository.find(repoQuery),
       this.postsRepository.count(repoQuery),
     ]);
-
-    return {
-      items,
-      total,
-      limit,
-      offset,
-      totalPages: Math.ceil(total / limit),
-      hasNext: offset + items.length < total,
-    };
+    return { items, total, limit, offset, totalPages: Math.ceil(total / limit), hasNext: offset + items.length < total };
   }
 }

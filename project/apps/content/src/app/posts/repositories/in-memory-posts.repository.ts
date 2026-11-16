@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Post, PostType, DEFAULT_POSTS_LIMIT } from '@readme/shared-types';
+import { Post, DEFAULT_POSTS_LIMIT } from '@readme/shared-types';
 import { PostsRepository, PostQuery } from './posts.repository';
 
 @Injectable()
@@ -31,6 +31,10 @@ export class InMemoryPostsRepository implements PostsRepository {
     let items = [...this.store.values()];
     if (query.status) items = items.filter((p) => p.status === query.status);
     if (query.authorId) items = items.filter((p) => p.authorId === query.authorId);
+    if (query.authorIds && query.authorIds.length > 0) {
+      const set = new Set(query.authorIds);
+      items = items.filter((p) => set.has(p.authorId));
+    }
     if (query.type) items = items.filter((p) => p.type === query.type);
     if (query.tag) items = items.filter((p) => p.tags.includes(query.tag as string));
     if (query.search) {

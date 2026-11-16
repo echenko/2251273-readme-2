@@ -7,6 +7,7 @@ import { UsersController } from './users/users.controller';
 import { PostsController } from './posts/posts.controller';
 import { CommentsController } from './comments/comments.controller';
 import { LikesController } from './likes/likes.controller';
+import { FeedController } from './feed/feed.controller';
 import { GatewayPostsService } from './posts/posts.service';
 import { JwtStrategy } from './auth/jwt.strategy';
 
@@ -25,6 +26,7 @@ import { JwtStrategy } from './auth/jwt.strategy';
     PostsController,
     CommentsController,
     LikesController,
+    FeedController,
   ],
   providers: [JwtStrategy, GatewayPostsService],
 })

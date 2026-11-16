@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Post as PrismaPost } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PostsRepository, PostQuery } from './posts.repository';
-import { Post, PostStatus, PostType } from '@readme/shared-types';
+import { Post, PostStatus, PostType, DEFAULT_POSTS_LIMIT } from '@readme/shared-types';
 
 @Injectable()
 export class PrismaPostsRepository implements PostsRepository {
@@ -40,16 +40,10 @@ export class PrismaPostsRepository implements PostsRepository {
   }
 
   async find(query: PostQuery): Promise<Post[]> {
-    const where: any = {};
-    if (query.status) where.status = query.status;
-    if (query.authorId) where.authorId = query.authorId;
-    if (query.type) where.type = query.type;
-    if (query.tag) where.tags = { has: query.tag };
-    if (query.search) where.title = { contains: query.search, mode: 'insensitive' };
-
+    const where = this.buildWhere(query);
     const docs = await this.prisma.post.findMany({
       where,
-      take: query.limit ?? 25,
+      take: query.limit ?? DEFAULT_POSTS_LIMIT,
       skip: query.offset ?? 0,
       orderBy: { publishedAt: 'desc' },
     });
@@ -57,12 +51,20 @@ export class PrismaPostsRepository implements PostsRepository {
   }
 
   async count(query: PostQuery): Promise<number> {
+    return this.prisma.post.count({ where: this.buildWhere(query) });
+  }
+
+  private buildWhere(query: PostQuery): any {
     const where: any = {};
     if (query.status) where.status = query.status;
     if (query.authorId) where.authorId = query.authorId;
+    if (query.authorIds && query.authorIds.length > 0) {
+      where.authorId = { in: query.authorIds };
+    }
     if (query.type) where.type = query.type;
     if (query.tag) where.tags = { has: query.tag };
-    return this.prisma.post.count({ where });
+    if (query.search) where.title = { contains: query.search, mode: 'insensitive' };
+    return where;
   }
 
   private toPrismaData(p: any, isPatch = false): any {

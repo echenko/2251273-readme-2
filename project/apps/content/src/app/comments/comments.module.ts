@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CommentsController } from './comments.controller';
 import { CommentsService } from './comments.service';
 import { CommentsRepository } from './repositories/comments.repository';
 import { InMemoryCommentsRepository } from './repositories/in-memory-comments.repository';
 import { PrismaCommentsRepository } from './repositories/prisma-comments.repository';
+import { PostsModule } from '../posts/posts.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, forwardRef(() => PostsModule)],
   controllers: [CommentsController],
   providers: [
     CommentsService,

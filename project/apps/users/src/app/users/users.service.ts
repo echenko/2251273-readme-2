@@ -80,7 +80,11 @@ export class UsersService {
   }
 
   async getFeedAuthorIds(userId: string): Promise<string[]> {
+    // Если userId пустой — вернуть [], чтобы не показать «все посты».
+    if (!userId) return [];
+
     const subs = await this.subscriptionsRepository.getSubscriptions(userId);
-    return [userId, ...subs];
+    // Всегда включаем свой id; убираем дубликаты и себя из подписок
+    return [userId, ...subs.filter((id) => id !== userId)];
   }
 }

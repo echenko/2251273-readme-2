@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { firstValueFrom } from 'rxjs';
@@ -11,42 +18,51 @@ export class AuthController {
 
   @Post('register')
   @ApiOperation({ summary: 'Регистрация (proxy → users)' })
-  @ApiResponse({ status: 201, description: 'Пользователь создан' })
-  @ApiResponse({ status: 400, description: 'Ошибка валидации' })
-  @ApiResponse({ status: 409, description: 'Email уже занят' })
+  @ApiResponse({ status: 201 })
+  @ApiResponse({ status: 400 })
+  @ApiResponse({ status: 409 })
   async register(@Body() body: unknown) {
-    const { data } = await firstValueFrom(
-      this.http.post(`${SERVICES.users}/auth/register`, body),
-    );
-    return data;
+    try {
+      const { data } = await firstValueFrom(
+        this.http.post(`${SERVICES.users}/auth/register`, body),
+      );
+      return data;
+    } catch (error: any) {
+      const status = error?.response?.status ?? 500;
+      const message = error?.response?.data ?? { message: 'Internal error' };
+      throw new HttpException(message, status);
+    }
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Логин → пара токенов (proxy → users)' })
-  @ApiResponse({
-    status: 200,
-    schema: {
-      properties: {
-        accessToken: { type: 'string' },
-        refreshToken: { type: 'string' },
-      },
-    },
-  })
+  @ApiOperation({ summary: 'Логин (proxy → users)' })
   async login(@Body() body: unknown) {
-    const { data } = await firstValueFrom(
-      this.http.post(`${SERVICES.users}/auth/login`, body),
-    );
-    return data;
+    try {
+      const { data } = await firstValueFrom(
+        this.http.post(`${SERVICES.users}/auth/login`, body),
+      );
+      return data;
+    } catch (error: any) {
+      const status = error?.response?.status ?? 500;
+      const message = error?.response?.data ?? { message: 'Internal error' };
+      throw new HttpException(message, status);
+    }
   }
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Обновить пару токенов (proxy → users)' })
+  @ApiOperation({ summary: 'Refresh (proxy → users)' })
   async refresh(@Body() body: unknown) {
-    const { data } = await firstValueFrom(
-      this.http.post(`${SERVICES.users}/auth/refresh`, body),
-    );
-    return data;
+    try {
+      const { data } = await firstValueFrom(
+        this.http.post(`${SERVICES.users}/auth/refresh`, body),
+      );
+      return data;
+    } catch (error: any) {
+      const status = error?.response?.status ?? 500;
+      const message = error?.response?.data ?? { message: 'Internal error' };
+      throw new HttpException(message, status);
+    }
   }
 }

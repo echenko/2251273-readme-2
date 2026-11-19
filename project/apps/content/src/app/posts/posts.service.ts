@@ -30,6 +30,8 @@ import { createPostBase } from './entities/post.entity';
 import { CommentsService } from '../comments/comments.service';
 import { LikesService } from '../likes/likes.service';
 
+const MAX_FETCH = 10000;
+
 @Injectable()
 export class PostsService {
   constructor(
@@ -87,6 +89,11 @@ export class PostsService {
     const limit = query.limit ?? DEFAULT_POSTS_LIMIT;
     const offset = query.offset ?? 0;
 
+    // Если authorIds передан явно и пустой — возвращаем пусто (не все посты)
+    if (Array.isArray(query.authorIds) && query.authorIds.length === 0) {
+      return { items: [], total: 0, limit, offset, totalPages: 0, hasNext: false };
+    }
+
     const repoQuery: PostQuery = {
       offset,
       limit,
@@ -99,6 +106,42 @@ export class PostsService {
       status: PostStatus.Published,
     };
 
+    // Сортировка по likes / comments — реальная
+    if (query.sortBy === SortType.Likes || query.sortBy === SortType.Comments) {
+      const all = await this.postsRepository.find({
+        ...repoQuery,
+        offset: 0,
+        limit: MAX_FETCH,
+      });
+
+      const withCounts = await Promise.all(
+        all.map(async (p) => ({
+          post: p,
+          likes: (await this.likesService.count(p.id)).count,
+          comments: await this.commentsService.countByPost(p.id),
+        })),
+      );
+
+      withCounts.sort((a, b) =>
+        query.sortBy === SortType.Likes
+          ? b.likes - a.likes
+          : b.comments - a.comments,
+      );
+
+      const total = withCounts.length;
+      const items = withCounts.slice(offset, offset + limit).map((x) => x.post);
+
+      return {
+        items,
+        total,
+        limit,
+        offset,
+        totalPages: Math.ceil(total / limit),
+        hasNext: offset + items.length < total,
+      };
+    }
+
+    // date desc — по умолчанию
     const [items, total] = await Promise.all([
       this.postsRepository.find(repoQuery),
       this.postsRepository.count(repoQuery),
@@ -116,7 +159,14 @@ export class PostsService {
 
   async feed(query: QueryPostsDto): Promise<Paginated<Post>> {
     if (!query.authorIds || query.authorIds.length === 0) {
-      return { items: [], total: 0, limit: query.limit ?? DEFAULT_POSTS_LIMIT, offset: query.offset ?? 0, totalPages: 0, hasNext: false };
+      return {
+        items: [],
+        total: 0,
+        limit: query.limit ?? DEFAULT_POSTS_LIMIT,
+        offset: query.offset ?? 0,
+        totalPages: 0,
+        hasNext: false,
+      };
     }
     return this.list(query);
   }
@@ -149,7 +199,7 @@ export class PostsService {
 
   async repost(userId: string, id: string): Promise<Post> {
     const original = await this.getById(id);
-    const already = await this.postsRepository.find({ authorId: userId, limit: DEFAULT_POSTS_LIMIT * 40 });
+    const already = await this.postsRepository.find({ authorId: userId, limit: MAX_FETCH });
     if (already.some((p) => p.originalPostId === id)) {
       throw new ForbiddenException('Already reposted');
     }

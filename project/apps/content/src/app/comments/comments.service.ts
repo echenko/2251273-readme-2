@@ -1,20 +1,38 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { DEFAULT_COMMENTS_LIMIT, Paginated } from '@readme/shared-types';
 import { CommentsRepository } from './repositories/comments.repository';
 import { CommentEntity } from './entities/comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { QueryCommentsDto } from './dto/query-comments.dto';
+import { PostsService } from '../posts/posts.service';
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly commentsRepository: CommentsRepository) {}
+  constructor(
+    private readonly commentsRepository: CommentsRepository,
+    @Inject(forwardRef(() => PostsService))
+    private readonly postsService: PostsService,
+  ) {}
 
   async create(
     authorId: string,
     postId: string,
     dto: CreateCommentDto,
   ): Promise<CommentEntity> {
+    // Проверка существования поста
+    try {
+      await this.postsService.getById(postId);
+    } catch {
+      throw new NotFoundException('Post not found');
+    }
+
     return this.commentsRepository.create({
       id: randomUUID(),
       postId,

@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LikesController } from './likes.controller';
 import { LikesService } from './likes.service';
 import { LikesRepository } from './repositories/likes.repository';
 import { InMemoryLikesRepository } from './repositories/in-memory-likes.repository';
 import { PrismaLikesRepository } from './repositories/prisma-likes.repository';
+import { PostsModule } from '../posts/posts.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, forwardRef(() => PostsModule)],
   controllers: [LikesController],
   providers: [
     LikesService,

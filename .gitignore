@@ -22,7 +22,7 @@ tmp/
 # Build output (any level)
 dist/
 build/
-lib/
+/lib/
 
 # Env
 .env

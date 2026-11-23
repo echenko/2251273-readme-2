@@ -24,7 +24,9 @@ export class UserEntity {
   }
 
   async compareRefreshToken(token: string): Promise<boolean> {
-    if (!this.refreshTokenHash) return false;
+    if (!this.refreshTokenHash) {
+      return false;
+    }
     return bcrypt.compare(token, this.refreshTokenHash);
   }
 

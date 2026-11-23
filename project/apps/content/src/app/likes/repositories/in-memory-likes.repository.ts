@@ -8,7 +8,9 @@ export class InMemoryLikesRepository implements LikesRepository {
 
   async findByUserAndPost(userId: string, postId: string): Promise<LikeEntity | null> {
     for (const like of this.store.values()) {
-      if (like.userId === userId && like.postId === postId) return like;
+      if (like.userId === userId && like.postId === postId) {
+        return like;
+      }
     }
     return null;
   }
@@ -27,13 +29,13 @@ export class InMemoryLikesRepository implements LikesRepository {
   }
 
   async deleteByPost(postId: string): Promise<number> {
-    let n = 0;
+    let deletedCount = 0;
     for (const [id, l] of this.store) {
       if (l.postId === postId) {
         this.store.delete(id);
-        n++;
+        deletedCount++;
       }
     }
-    return n;
+    return deletedCount;
   }
 }

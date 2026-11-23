@@ -31,13 +31,13 @@ export class InMemoryCommentsRepository implements CommentsRepository {
   }
 
   async deleteByPost(postId: string): Promise<number> {
-    let n = 0;
+    let deletedCount = 0;
     for (const [id, c] of this.store) {
       if (c.postId === postId) {
         this.store.delete(id);
-        n++;
+        deletedCount++;
       }
     }
-    return n;
+    return deletedCount;
   }
 }

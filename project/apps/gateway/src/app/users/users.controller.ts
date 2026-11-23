@@ -39,7 +39,7 @@ export class UsersController {
         }),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -58,7 +58,7 @@ export class UsersController {
         }),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -77,7 +77,7 @@ export class UsersController {
         this.http.get(`${SERVICES.users}/users/${id}`),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -99,7 +99,7 @@ export class UsersController {
         }),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -124,7 +124,7 @@ export class UsersController {
         ),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -147,7 +147,7 @@ export class UsersController {
         }),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -163,7 +163,7 @@ export class UsersController {
         this.http.get(`${SERVICES.users}/users/${id}/subscribers`),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -179,7 +179,7 @@ export class UsersController {
         this.http.get(`${SERVICES.users}/users/${id}/subscriptions`),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);

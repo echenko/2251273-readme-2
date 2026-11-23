@@ -17,7 +17,9 @@ export class InMemoryPostsRepository implements PostsRepository {
 
   async update(id: string, patch: Partial<Post>): Promise<Post | null> {
     const existing = this.store.get(id);
-    if (!existing) return null;
+    if (!existing) {
+      return null;
+    }
     const updated = Object.assign(existing, patch) as Post;
     this.store.set(id, updated);
     return updated;

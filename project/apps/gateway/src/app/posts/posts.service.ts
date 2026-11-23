@@ -1,3 +1,4 @@
+import { Post } from '@readme/shared-types';
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
@@ -22,7 +23,7 @@ export class GatewayPostsService {
     );
 
     const enriched = await Promise.all(
-      (data.items ?? []).map(async (post: any) => {
+      (data.items ?? []).map(async (post: Post) => {
         const [author, likesCount, commentsCount] = await Promise.all([
           this.getAuthor(post.authorId),
           this.getLikesCount(post.id),

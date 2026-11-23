@@ -26,7 +26,9 @@ export class MongooseUsersRepository implements UsersRepository {
   }
 
   async findById(id: string): Promise<UserEntity | null> {
-    if (!isValidObjectId(id)) return null;
+    if (!isValidObjectId(id)) {
+      return null;
+    }
     const doc = await this.userModel.findById(id).exec();
     return doc ? this.toEntity(doc) : null;
   }
@@ -37,7 +39,9 @@ export class MongooseUsersRepository implements UsersRepository {
   }
 
   async update(id: string, patch: Partial<UserEntity>): Promise<UserEntity | null> {
-    if (!isValidObjectId(id)) return null;
+    if (!isValidObjectId(id)) {
+      return null;
+    }
     const { id: _omitId, ...cleanPatch } = patch;
     const doc = await this.userModel
       .findByIdAndUpdate(id, cleanPatch, { new: true })

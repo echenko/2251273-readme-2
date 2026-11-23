@@ -3,9 +3,11 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Patch,
   Post,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -40,6 +42,15 @@ export class UsersController {
   @ApiOperation({ summary: 'ID авторов для моей ленты (я + подписки)' })
   myFeedAuthorIds(@CurrentUser() user: { sub: string }) {
     return this.usersService.getFeedAuthorIds(user.sub);
+  }
+
+  @Get('emails')
+  @ApiOperation({ summary: 'Получить email всех пользователей (только для внутренних сервисов)' })
+  getAllEmails(@Headers('x-internal-token') internalToken: string) {
+    if (internalToken !== process.env.INTERNAL_TOKEN) {
+      throw new UnauthorizedException('Доступ запрещён: неверный внутренний токен');
+    }
+    return this.usersService.getAllEmails();
   }
 
   @Get(':id')

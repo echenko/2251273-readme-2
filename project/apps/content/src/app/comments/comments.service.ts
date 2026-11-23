@@ -66,8 +66,12 @@ export class CommentsService {
 
   async remove(authorId: string, id: string): Promise<{ success: boolean }> {
     const comment = await this.commentsRepository.findById(id);
-    if (!comment) throw new NotFoundException('Comment not found');
-    if (comment.authorId !== authorId) throw new ForbiddenException('Not your comment');
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    if (comment.authorId !== authorId) {
+      throw new ForbiddenException('Not your comment');
+    }
     await this.commentsRepository.delete(id);
     return { success: true };
   }

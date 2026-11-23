@@ -27,7 +27,9 @@ export class LikesService {
     }
 
     const existing = await this.likesRepository.findByUserAndPost(userId, postId);
-    if (existing) throw new ConflictException('Already liked');
+    if (existing) {
+      throw new ConflictException('Already liked');
+    }
 
     return this.likesRepository.create({
       id: randomUUID(),
@@ -39,7 +41,9 @@ export class LikesService {
 
   async unlike(userId: string, postId: string): Promise<{ success: boolean }> {
     const existing = await this.likesRepository.findByUserAndPost(userId, postId);
-    if (!existing) throw new NotFoundException('Like not found');
+    if (!existing) {
+      throw new NotFoundException('Like not found');
+    }
     await this.likesRepository.delete(existing.id);
     return { success: true };
   }

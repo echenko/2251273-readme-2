@@ -13,13 +13,13 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 @ApiTags('posts')
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(private readonly postsService: PostsService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Создать публикацию' })
-  create(@CurrentUser() user: { sub: string }, @Body() body: any) {
+  create(@CurrentUser() user: { sub: string }, @Body() body: Record<string, unknown>) {
     return this.postsService.create(user.sub, body);
   }
 

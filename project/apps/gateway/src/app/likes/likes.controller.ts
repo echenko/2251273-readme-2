@@ -48,7 +48,7 @@ export class LikesController {
         ),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -71,7 +71,7 @@ export class LikesController {
         }),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -87,7 +87,7 @@ export class LikesController {
         this.http.get(`${SERVICES.content}/posts/${postId}/likes`),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);

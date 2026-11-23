@@ -23,7 +23,9 @@ export class AuthService {
 
   async register(dto: RegisterDto) {
     const existing = await this.usersRepository.findByEmail(dto.email);
-    if (existing) throw new ConflictException('Email already in use');
+    if (existing) {
+      throw new ConflictException('Email already in use');
+    }
 
     const user = new UserEntity();
     user.email = dto.email;
@@ -39,10 +41,14 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.usersRepository.findByEmail(dto.email);
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     const ok = await user.comparePassword(dto.password);
-    if (!ok) throw new UnauthorizedException('Invalid credentials');
+    if (!ok) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     return this.issueTokens(user);
   }
@@ -55,10 +61,14 @@ export class AuthService {
       );
 
       const user = await this.usersRepository.findById(payload.sub);
-      if (!user) throw new UnauthorizedException('Invalid refresh token');
+      if (!user) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
 
       const valid = await user.compareRefreshToken(refreshToken);
-      if (!valid) throw new UnauthorizedException('Invalid refresh token');
+      if (!valid) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
 
       return this.issueTokens(user);
     } catch {

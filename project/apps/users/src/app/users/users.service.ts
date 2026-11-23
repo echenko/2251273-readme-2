@@ -23,9 +23,11 @@ export class UsersService {
 
   async getDetails(id: string) {
     const user = await this.usersRepository.findById(id);
-    if (!user) throw new NotFoundException('User not found');
-    const { passwordHash, refreshTokenHash, ...rest } = user;
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
+    const { passwordHash, refreshTokenHash, ...rest } = user;
     const subscribersCount = await this.subscriptionsRepository.countSubscribers(id);
 
     let postsCount = 0;
@@ -45,10 +47,14 @@ export class UsersService {
 
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const user = await this.usersRepository.findById(userId);
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
-    const ok = await user.comparePassword(dto.currentPassword);
-    if (!ok) throw new UnauthorizedException('Current password is incorrect');
+    const isPasswordValid = await user.comparePassword(dto.currentPassword);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
 
     await user.setPassword(dto.newPassword);
     await this.usersRepository.update(user.id, user);
@@ -59,8 +65,11 @@ export class UsersService {
     if (followerId === followingId) {
       throw new BadRequestException('Cannot subscribe to yourself');
     }
-    const target = await this.usersRepository.findById(followingId);
-    if (!target) throw new NotFoundException('User not found');
+
+    const targetUser = await this.usersRepository.findById(followingId);
+    if (!targetUser) {
+      throw new NotFoundException('User not found');
+    }
 
     await this.subscriptionsRepository.subscribe(followerId, followingId);
     return { success: true };
@@ -80,11 +89,17 @@ export class UsersService {
   }
 
   async getFeedAuthorIds(userId: string): Promise<string[]> {
-    // Если userId пустой — вернуть [], чтобы не показать «все посты».
-    if (!userId) return [];
+    if (!userId) {
+      return [];
+    }
 
-    const subs = await this.subscriptionsRepository.getSubscriptions(userId);
-    // Всегда включаем свой id; убираем дубликаты и себя из подписок
-    return [userId, ...subs.filter((id) => id !== userId)];
+    const subscriptions = await this.subscriptionsRepository.getSubscriptions(userId);
+    return [userId, ...subscriptions.filter((id) => id !== userId)];
+  }
+
+  // НОВЫЙ МЕТОД ДЛЯ РАССЫЛКИ
+  async getAllEmails(): Promise<string[]> {
+    const users = await this.usersRepository.findAll();
+    return users.map((user) => user.email);
   }
 }

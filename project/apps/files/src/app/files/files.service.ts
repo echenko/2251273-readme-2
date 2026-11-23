@@ -27,10 +27,14 @@ export class FilesService {
     kind: FileKind,
     file: Express.Multer.File | undefined,
   ): Promise<FileEntity> {
-    if (!file) throw new BadRequestException('File is required');
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
 
     const limits = LIMITS[kind];
-    if (!limits) throw new BadRequestException(`Unknown kind: ${kind}`);
+    if (!limits) {
+      throw new BadRequestException(`Unknown kind: ${kind}`);
+    }
     if (!limits.mimes.includes(file.mimetype)) {
       throw new BadRequestException(
         `Invalid mime type: ${file.mimetype}. Allowed: ${limits.mimes.join(', ')}`,
@@ -56,13 +60,17 @@ export class FilesService {
 
   async getById(id: string): Promise<FileEntity> {
     const file = await this.filesRepository.findById(id);
-    if (!file) throw new NotFoundException('File not found');
+    if (!file) {
+      throw new NotFoundException('File not found');
+    }
     return file;
   }
 
   async remove(ownerId: string, id: string): Promise<{ success: boolean }> {
     const file = await this.getById(id);
-    if (file.ownerId !== ownerId) throw new ForbiddenException('Not your file');
+    if (file.ownerId !== ownerId) {
+      throw new ForbiddenException('Not your file');
+    }
     await this.filesRepository.delete(id);
     return { success: true };
   }

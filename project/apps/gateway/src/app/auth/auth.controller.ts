@@ -27,7 +27,7 @@ export class AuthController {
         this.http.post(`${SERVICES.users}/auth/register`, body),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -43,7 +43,7 @@ export class AuthController {
         this.http.post(`${SERVICES.users}/auth/login`, body),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);
@@ -59,7 +59,7 @@ export class AuthController {
         this.http.post(`${SERVICES.users}/auth/refresh`, body),
       );
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const status = error?.response?.status ?? 500;
       const message = error?.response?.data ?? { message: 'Internal error' };
       throw new HttpException(message, status);

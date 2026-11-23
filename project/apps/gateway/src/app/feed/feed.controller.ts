@@ -1,3 +1,4 @@
+import { Post } from '@readme/shared-types';
 import { Controller, Get, Headers, Query, UseGuards } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import {
@@ -52,7 +53,7 @@ export class FeedController {
 
     // 3. Агрегация: author, likesCount, commentsCount
     const items = await Promise.all(
-      (data.items ?? []).map(async (post: any) => {
+      (data.items ?? []).map(async (post: Post) => {
         const [author, likesCount, commentsCount] = await Promise.all([
           this.getAuthor(post.authorId),
           this.getLikesCount(post.id),

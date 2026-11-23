@@ -41,8 +41,8 @@ export class PrismaLikesRepository implements LikesRepository {
   }
 
   async deleteByPost(postId: string): Promise<number> {
-    const r = await this.prisma.like.deleteMany({ where: { postId } });
-    return r.count;
+    const deleteResult = await this.prisma.like.deleteMany({ where: { postId } });
+    return deleteResult.count;
   }
 
   private toEntity(doc: PrismaLike): LikeEntity {

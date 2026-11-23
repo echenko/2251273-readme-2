@@ -19,14 +19,18 @@ export class InMemoryUsersRepository implements UsersRepository {
 
   async findByEmail(email: string): Promise<UserEntity | null> {
     for (const u of this.store.values()) {
-      if (u.email === email) return u;
+      if (u.email === email) {
+        return u;
+      }
     }
     return null;
   }
 
   async update(id: string, patch: Partial<UserEntity>): Promise<UserEntity | null> {
     const existing = this.store.get(id);
-    if (!existing) return null;
+    if (!existing) {
+      return null;
+    }
     const updated = Object.assign(existing, patch);
     this.store.set(id, updated);
     return updated;

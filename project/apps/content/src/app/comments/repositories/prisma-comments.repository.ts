@@ -50,8 +50,8 @@ export class PrismaCommentsRepository implements CommentsRepository {
   }
 
   async deleteByPost(postId: string): Promise<number> {
-    const r = await this.prisma.comment.deleteMany({ where: { postId } });
-    return r.count;
+    const deleteResult = await this.prisma.comment.deleteMany({ where: { postId } });
+    return deleteResult.count;
   }
 
   private toEntity(doc: PrismaComment): CommentEntity {

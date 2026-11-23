@@ -1,107 +1,142 @@
 import { Injectable } from '@nestjs/common';
-import { Post as PrismaPost } from '@prisma/client';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+import { Post, PostStatus, SortType, Paginated, DEFAULT_POSTS_LIMIT } from '@readme/shared-types';
 import { PostsRepository, PostQuery } from './posts.repository';
-import { Post, PostStatus, PostType, DEFAULT_POSTS_LIMIT } from '@readme/shared-types';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class PrismaPostsRepository implements PostsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(post: Post): Promise<Post> {
-    const saved = await this.prisma.post.create({ data: this.toPrismaData(post) });
-    return this.toPost(saved);
+    return this.prisma.post.create({ data: post as Prisma.PostCreateInput }) as unknown as Post;
   }
 
   async findById(id: string): Promise<Post | null> {
     const doc = await this.prisma.post.findUnique({ where: { id } });
-    return doc ? this.toPost(doc) : null;
-  }
-
-  async update(id: string, patch: Partial<Post>): Promise<Post | null> {
-    try {
-      const doc = await this.prisma.post.update({
-        where: { id },
-        data: this.toPrismaData(patch as any, true),
-      });
-      return this.toPost(doc);
-    } catch {
-      return null;
-    }
-  }
-
-  async delete(id: string): Promise<boolean> {
-    try {
-      await this.prisma.post.delete({ where: { id } });
-      return true;
-    } catch {
-      return false;
-    }
+    return doc as unknown as Post | null;
   }
 
   async find(query: PostQuery): Promise<Post[]> {
     const where = this.buildWhere(query);
+    const orderBy = this.buildOrderBy(query.sortBy ?? SortType.Date);
+
     const docs = await this.prisma.post.findMany({
       where,
-      take: query.limit ?? DEFAULT_POSTS_LIMIT,
+      orderBy,
       skip: query.offset ?? 0,
-      orderBy: { publishedAt: 'desc' },
+      take: query.limit ?? DEFAULT_POSTS_LIMIT,
     });
-    return docs.map((d) => this.toPost(d));
+
+    return docs as unknown as Post[];
   }
 
   async count(query: PostQuery): Promise<number> {
-    return this.prisma.post.count({ where: this.buildWhere(query) });
+    const where = this.buildWhere(query);
+    return this.prisma.post.count({ where });
   }
 
-  private buildWhere(query: PostQuery): any {
-    const where: any = {};
-    if (query.status) where.status = query.status;
-    if (query.authorId) where.authorId = query.authorId;
+  async update(id: string, patch: Partial<Post>): Promise<Post> {
+    const prismaData = this.toPrismaData(patch as Record<string, unknown>, true);
+    const doc = await this.prisma.post.update({
+      where: { id },
+      data: prismaData as Prisma.PostUpdateInput,
+    });
+    return doc as unknown as Post;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    await this.prisma.post.delete({ where: { id } });
+    return true;
+  }
+
+  private buildWhere(query: PostQuery): Prisma.PostWhereInput {
+    const where: Prisma.PostWhereInput = {};
+
+    if (query.authorId) {
+      where.authorId = query.authorId;
+    }
+
     if (query.authorIds && query.authorIds.length > 0) {
       where.authorId = { in: query.authorIds };
     }
-    if (query.type) where.type = query.type;
-    if (query.tag) where.tags = { has: query.tag };
-    if (query.search) where.title = { contains: query.search, mode: 'insensitive' };
+
+    if (query.type) {
+      where.type = query.type;
+    }
+
+    if (query.status) {
+      where.status = query.status;
+    }
+
+    if (query.tag) {
+      where.tags = { has: query.tag };
+    }
+
+    if (query.search) {
+      where.OR = [
+        { title: { contains: query.search, mode: 'insensitive' } },
+        { text: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (query.publishedAfter) {
+      where.publishedAt = { gte: new Date(query.publishedAfter) };
+    }
+
     return where;
   }
 
-  private toPrismaData(p: any, isPatch = false): any {
-    const d: any = {};
-    const copy = [
-      'type', 'status', 'authorId', 'tags',
-      'title', 'announcement', 'text', 'videoUrl',
-      'quoteText', 'quoteAuthor', 'photoId', 'url', 'description',
-      'isRepost', 'originalPostId', 'originalAuthorId',
-    ];
-    for (const k of copy) if (p[k] !== undefined) d[k] = p[k];
-    if (!isPatch && p.id !== undefined) d.id = p.id;
-    if (!isPatch && p.createdAt !== undefined) d.createdAt = p.createdAt;
-    if (!isPatch && p.publishedAt !== undefined) d.publishedAt = p.publishedAt;
-    return d;
+  private buildOrderBy(sortBy: SortType) {
+    if (sortBy === SortType.Date) {
+      return { createdAt: 'desc' as const };
+    }
+    return { createdAt: 'desc' as const };
   }
 
-  private toPost(doc: PrismaPost): Post {
-    const base: any = {
-      id: doc.id,
-      type: doc.type as PostType,
-      status: doc.status as PostStatus,
-      authorId: doc.authorId,
-      tags: doc.tags,
-      createdAt: doc.createdAt,
-      publishedAt: doc.publishedAt,
-      isRepost: doc.isRepost,
-      originalPostId: doc.originalPostId ?? undefined,
-      originalAuthorId: doc.originalAuthorId ?? undefined,
-    };
-    switch (doc.type) {
-      case 'text': return { ...base, title: doc.title, announcement: doc.announcement, text: doc.text };
-      case 'video': return { ...base, title: doc.title, videoUrl: doc.videoUrl };
-      case 'quote': return { ...base, quoteText: doc.quoteText, quoteAuthor: doc.quoteAuthor };
-      case 'photo': return { ...base, photoId: doc.photoId };
-      case 'link': return { ...base, url: doc.url, description: doc.description ?? undefined };
-      default: return base;
+  private toPrismaData(
+    postData: Record<string, unknown>,
+    isPatch = false,
+  ): Prisma.PostCreateInput | Prisma.PostUpdateInput {
+    const prismaData: Record<string, unknown> = {};
+
+    const copyableFields: string[] = [
+      'type',
+      'status',
+      'authorId',
+      'tags',
+      'title',
+      'announcement',
+      'text',
+      'videoUrl',
+      'quoteText',
+      'quoteAuthor',
+      'photoId',
+      'url',
+      'description',
+      'isRepost',
+      'originalPostId',
+      'originalAuthorId',
+    ];
+
+    for (const field of copyableFields) {
+      if (postData[field] !== undefined) {
+        prismaData[field] = postData[field];
+      }
     }
+
+    if (!isPatch) {
+      if (postData.id !== undefined) {
+        prismaData.id = postData.id;
+      }
+      if (postData.createdAt !== undefined) {
+        prismaData.createdAt = postData.createdAt as Date;
+      }
+      if (postData.publishedAt !== undefined) {
+        prismaData.publishedAt = postData.publishedAt as Date;
+      }
+    }
+
+    return prismaData as Prisma.PostCreateInput | Prisma.PostUpdateInput;
   }
 }

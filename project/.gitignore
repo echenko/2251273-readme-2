@@ -45,3 +45,7 @@ Thumbs.db
 .claude/settings.local.json
 
 test-output
+last-sent.json
+nx/
+tsconfig.tsbuildinfo
+webpack-cli

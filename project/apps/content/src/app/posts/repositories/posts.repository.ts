@@ -10,6 +10,7 @@ export interface PostQuery {
   authorIds?: string[];
   status?: PostStatus;
   search?: string;
+  publishedAfter?: string;
 }
 
 export abstract class PostsRepository {

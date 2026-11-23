@@ -21,6 +21,7 @@ done
 непустой INTERNAL_TOKEN (например INTERNAL_TOKEN=dev-internal-token-123).
 
 ### 4. Сборка
+npx prisma generate
 npx nx run-many -t build
 
 ### 5. Запуск (5 терминалов)

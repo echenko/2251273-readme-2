@@ -7,7 +7,7 @@
     "test:content": "bash tools/test-content-api.sh",
     "test:files": "bash tools/test-files-api.sh",
     "test:all": "bash tools/test-users-api.sh && bash tools/test-content-api.sh && bash tools/test-files-api.sh && bash tools/test-notifications-api.sh && bash tools/test-gateway-api.sh",
-    "postinstall": "prisma skills sync || exit 0",
+    "postinstall": "prisma generate || exit 0",
     "test:notifications": "bash tools/test-notifications-api.sh",
     "test:gateway": "bash tools/test-gateway-api.sh"
   },

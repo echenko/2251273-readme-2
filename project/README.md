@@ -9,16 +9,15 @@ docker compose -f apps/users/docker-compose.yml up -d
 docker compose -f apps/content/docker-compose.yml up -d
 docker compose -f apps/notifications/docker-compose.yml up -d
 
-### 2. Зависимости
-npm install
-
-### 3. Окружение
+### 2. Окружение
 for app in users content files notifications gateway; do
   cp "apps/$app/.env.example" "apps/$app/.env"
 done
-
 ВАЖНО: в apps/users/.env и apps/notifications/.env задайте одинаковый
 непустой INTERNAL_TOKEN (например INTERNAL_TOKEN=dev-internal-token-123).
+
+### 3. Зависимости (postinstall сам сгенерирует Prisma-клиент)
+npm install
 
 ### 4. Сборка
 npx prisma generate

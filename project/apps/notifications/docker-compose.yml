@@ -4,11 +4,11 @@ services:
     container_name: readme-notifications-rabbitmq
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_USER: readme
+      RABBITMQ_DEFAULT_PASS: readme_password
     ports:
-      - '${RABBITMQ_PORT}:5672'
-      - '${RABBITMQ_MGMT_PORT}:15672'
+      - '5673:5672'
+      - '15673:15672'
     volumes:
       - ./rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
@@ -23,8 +23,8 @@ services:
     container_name: readme-notifications-mailhog
     restart: unless-stopped
     ports:
-      - '${SMTP_PORT}:1025'    # SMTP
-      - '${MAILHOG_UI_PORT}:8025'  # Web UI
+      - '1026:1025'
+      - '8026:8025'
     healthcheck:
       test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8025/"]
       interval: 10s
@@ -37,11 +37,11 @@ services:
     container_name: readme-notifications-mongo
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO_DB}
+      MONGO_INITDB_ROOT_USERNAME: readme
+      MONGO_INITDB_ROOT_PASSWORD: readme_password
+      MONGO_INITDB_DATABASE: readme_notifications
     ports:
-      - '${MONGO_PORT}:27017'
+      - '27019:27017'
     volumes:
       - ./mongo-data:/data/db
     healthcheck:

@@ -49,3 +49,9 @@ last-sent.json
 nx/
 tsconfig.tsbuildinfo
 webpack-cli
+
+# docker data (создаются контейнерами)
+mongo-data/
+postgres-data/
+rabbitmq-data/
+pgadmin-data/

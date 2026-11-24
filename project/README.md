@@ -11,6 +11,19 @@
 Инфраструктура: MongoDB, PostgreSQL, RabbitMQ, MailHog (UI: http://localhost:8026).
 Требования: Node.js 20+, Docker, ~4 ГБ RAM.
 
+## Порты инфраструктуры
+| Контейнер | Порты |
+|---|---|
+| readme-users-mongo | 27018 |
+| readme-users-mongo-express | 8081 |
+| readme-content-postgres | 5433 |
+| readme-content-pgadmin | 8083 |
+| readme-notifications-mongo | 27019 |
+| readme-notifications-rabbitmq | 5673 / 15673 |
+| readme-notifications-mailhog | 1026 / 8026 |
+
+Порты захардкожены в `docker-compose.yml` — переменные для инфраструктуры не нужны.
+
 ## Быстрый старт
 
 ### 1. Инфраструктура
@@ -73,6 +86,10 @@ npx nx serve gateway
 ```bash
 npm run test:all
 ```
+
+### Windows (только WSL2)
+Запускайте внутри WSL2: `wsl` → `cd /mnt/c/.../project` → шаги 1–6.
+Docker Desktop должен работать с WSL2-бэкендом.
 
 ## Частые проблемы
 - `@prisma/client did not initialize yet` → созданы ли все 5 `.env`? Затем `npx prisma generate` и пересборка.

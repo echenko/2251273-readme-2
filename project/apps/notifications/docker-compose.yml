@@ -10,7 +10,7 @@ services:
       - '5673:5672'
       - '15673:15672'
     volumes:
-      - ./rabbitmq-data:/var/lib/rabbitmq
+      - notifications-rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_port_listener", "5672"]
       interval: 10s
@@ -43,10 +43,14 @@ services:
     ports:
       - '27019:27017'
     volumes:
-      - ./mongo-data:/data/db
+      - notifications-mongo-data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 20s
+
+volumes:
+  notifications-rabbitmq-data:
+  notifications-mongo-data:

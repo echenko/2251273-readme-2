@@ -1,57 +1,22 @@
-# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# Docker data volumes (стали не нужны, но на всякий случай)
+apps/*/mongo-data/
+apps/*/postgres-data/
+apps/*/pgadmin-data/
+apps/*/rabbitmq-data/
 
-# compiled output
-dist
-tmp
-out-tsc
+# Node
+node_modules/
+dist/
+.tmp/
+tmp/
 
-# dependencies
-node_modules
+# Env (примеры — коммитим, реальные — нет)
+.env
+.env.local
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Логи
+*.log
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
-.DS_Store
-Thumbs.db
-
-.nx/cache
-.nx/workspace-data
-.nx/migrate-runs
-.claude/worktrees
-.claude/settings.local.json
-
-test-output
-last-sent.json
-nx/
-tsconfig.tsbuildinfo
-webpack-cli
-
-# docker data (создаются контейнерами)
-mongo-data/
-postgres-data/
-rabbitmq-data/
-pgadmin-data/
+# IDE
+.idea/
+.vscode/

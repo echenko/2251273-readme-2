@@ -31,14 +31,22 @@ export class InMemoryPostsRepository implements PostsRepository {
 
   private filter(query: PostQuery): Post[] {
     let items = [...this.store.values()];
-    if (query.status) items = items.filter((p) => p.status === query.status);
-    if (query.authorId) items = items.filter((p) => p.authorId === query.authorId);
+    if (query.status) {
+      items = items.filter((p) => p.status === query.status);
+    };
+    if (query.authorId) {
+      items = items.filter((p) => p.authorId === query.authorId);
+    };
     if (query.authorIds && query.authorIds.length > 0) {
       const set = new Set(query.authorIds);
       items = items.filter((p) => set.has(p.authorId));
     }
-    if (query.type) items = items.filter((p) => p.type === query.type);
-    if (query.tag) items = items.filter((p) => p.tags.includes(query.tag as string));
+    if (query.type) {
+      items = items.filter((p) => p.type === query.type);
+    };
+    if (query.tag) {
+      items = items.filter((p) => p.tags.includes(query.tag as string));
+    };
     if (query.search) {
       const needle = query.search.toLowerCase();
       items = items.filter((p) => {

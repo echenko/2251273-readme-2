@@ -21,7 +21,9 @@ export class InMemorySubscriptionsRepository implements SubscriptionsRepository 
     const result: string[] = [];
     for (const key of this.store) {
       const [f, t] = key.split(':');
-      if (f === followerId) result.push(t);
+      if (f === followerId) {
+        result.push(t);
+      };
     }
     return result;
   }
@@ -30,7 +32,9 @@ export class InMemorySubscriptionsRepository implements SubscriptionsRepository 
     const result: string[] = [];
     for (const key of this.store) {
       const [f, t] = key.split(':');
-      if (t === followingId) result.push(f);
+      if (t === followingId) {
+        result.push(f);
+      };
     }
     return result;
   }
@@ -43,7 +47,9 @@ export class InMemorySubscriptionsRepository implements SubscriptionsRepository 
     let count = 0;
     for (const key of this.store) {
       const [, t] = key.split(':');
-      if (t === followingId) count++;
+      if (t === followingId) {
+        count++;
+      };
     }
     return count;
   }

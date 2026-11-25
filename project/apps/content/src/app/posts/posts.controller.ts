@@ -9,6 +9,7 @@ import { PostsService } from './posts.service';
 import { QueryPostsDto } from './dto/query-posts.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CreatePostBaseDto } from './dto/create-post.dto';
 
 @ApiTags('posts')
 @Controller('posts')
@@ -78,7 +79,7 @@ export class PostsController {
     @Body() patch: Record<string, unknown>,
     @CurrentUser() user: { sub: string },
   ) {
-    return this.postsService.update(user.sub, id, patch as any);
+    return this.postsService.update(user.sub, id, patch as Partial<CreatePostBaseDto>);
   }
 
   @Delete(':id')

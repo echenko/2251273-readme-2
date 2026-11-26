@@ -12,11 +12,13 @@ import { InMemorySubscriptionsRepository } from './repositories/in-memory-subscr
 import { MongooseSubscriptionsRepository } from './repositories/mongoose-subscriptions.repository';
 import { User, UserSchema } from './schemas/user.schema';
 import { Subscription, SubscriptionSchema } from './schemas/subscription.schema';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule,
     HttpModule,
+    forwardRef(() => AuthModule),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Subscription.name, schema: SubscriptionSchema },
